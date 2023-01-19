@@ -23,7 +23,7 @@ namespace GeekShooping.Web.Services
 
         public async Task<ProductModel> FindProductById(long id)
         {
-            var response = await _client.GetAsync($"basePath/{id}");
+            var response = await _client.GetAsync($"{basePath}/{id}");
             return await response.ReadContentAs<ProductModel>();
         }
 
@@ -57,7 +57,7 @@ namespace GeekShooping.Web.Services
 
         public async Task<bool> DeleteProductById(long id)
         {
-            var response = await _client.DeleteAsync($"basePath/{id}");
+            var response = await _client.DeleteAsync($"{basePath}/{id}");
             if (response.IsSuccessStatusCode)
             {
                 return await response.ReadContentAs<bool>();
