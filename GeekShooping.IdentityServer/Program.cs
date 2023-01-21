@@ -1,4 +1,5 @@
 using GeekShooping.IdentityServer.Configuration;
+using GeekShooping.IdentityServer.Initializer;
 using GeekShooping.IdentityServer.Models.Context;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,11 +25,15 @@ var identityServer = builder.Services.AddIdentityServer(options =>
     .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
     .AddInMemoryIdentityResources(IdentityConfiguration.IdentityResources)
     .AddInMemoryClients(IdentityConfiguration.Clients)
-    .AddAspNetIdentity<ApplicationUser>()
-    .AddDeveloperSigningCredential();
+    .AddAspNetIdentity<ApplicationUser>();
+
+builder.Services.AddScoped<IDBInitializer, DbInitializer>();
+
+identityServer.AddDeveloperSigningCredential();
 
 var app = builder.Build();
 
+var dbInitialize = app.Services.CreateScope().ServiceProvider.GetService<IDBInitializer>();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -45,5 +50,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+dbInitialize.Initialize();
 
 app.Run();
