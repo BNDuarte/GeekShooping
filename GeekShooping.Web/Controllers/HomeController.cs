@@ -1,4 +1,5 @@
 ﻿using GeekShooping.Web.Models;
+using GeekShooping.Web.Services;
 using GeekShooping.Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +12,13 @@ namespace GeekShooping.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductService _productService;
-        public HomeController(ILogger<HomeController> logger, IProductService productService)
+        private readonly ICartService _cartService;
+
+        public HomeController(ILogger<HomeController> logger, IProductService productService, ICartService cartService)
         {
             _logger = logger;
             _productService = productService;
+            _cartService = cartService;
         }
 
         public async Task<IActionResult> Index()
@@ -32,6 +36,42 @@ namespace GeekShooping.Web.Controllers
             var model = await _productService.FindProductById(id, token);
             return View(model);
         }
+
+        [HttpPost]
+        [ActionName("Details")]
+        [Authorize]
+        public async Task<IActionResult> DetailsPost(ProductViewModel model)
+        {
+            var token = await HttpContext.GetTokenAsync("access_token");
+
+            CartViewModel cart = new()
+            {
+                CartHeader = new CartHeaderViewModel
+                {
+                    UserId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value
+                }
+            };
+
+            CartDetailViewModel cartDetail = new CartDetailViewModel()
+            {
+                Count = model.Count,
+                ProductId = model.Id,
+                Product = await _productService.FindProductById(model.Id, token)
+            };
+
+            List<CartDetailViewModel> cartDetails = new List<CartDetailViewModel>();
+            cartDetails.Add(cartDetail);
+            cart.CartDetails = cartDetails;
+
+            var response = await _cartService.AddItemToCart(cart, token);
+            if (response != null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            return View(model);
+        }
+
+
 
         public IActionResult Privacy()
         {
