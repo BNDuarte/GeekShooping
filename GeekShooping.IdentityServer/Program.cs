@@ -27,7 +27,8 @@ var identityServer = builder.Services.AddIdentityServer(options =>
     .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
     .AddInMemoryIdentityResources(IdentityConfiguration.IdentityResources)
     .AddInMemoryClients(IdentityConfiguration.Clients)
-    .AddAspNetIdentity<ApplicationUser>();
+    .AddAspNetIdentity<ApplicationUser>()
+    .AddProfileService<ProfileService>();
 
 builder.Services.AddScoped<IDBInitializer, DbInitializer>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
