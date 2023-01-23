@@ -28,6 +28,7 @@ builder.Services.AddAuthentication(options =>
         options.Scope.Add("geek_shooping");
         options.SaveTokens = true;
     });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
