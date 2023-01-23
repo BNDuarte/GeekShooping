@@ -1,10 +1,10 @@
-﻿
-namespace GeekShooping.CartAPI.Data
+﻿namespace GeekShooping.Web.Models
 {
-    public class CartHeaderVO
+    public class CartHeaderViewModel
     {
         public long Id { get; set; }
         public string UserId { get; set; }
         public string CuponCode { get; set; }
+        public double PurchaseAmount { get; set; }
     }
 }
