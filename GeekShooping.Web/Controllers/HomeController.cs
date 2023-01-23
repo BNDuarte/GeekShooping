@@ -17,10 +17,20 @@ namespace GeekShooping.Web.Controllers
             _productService = productService;
         }
 
-        public async Task<IActionResult> IndexAsync()
+        public async Task<IActionResult> Index()
         {
             var products = await _productService.FindAllProducts("");
             return View(products);
+
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            string token = await HttpContext.GetTokenAsync("access_token");
+            var model = await _productService.FindProductById(id, token);
+            return View(model);
         }
 
         public IActionResult Privacy()
@@ -37,8 +47,8 @@ namespace GeekShooping.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Login()
         {
-            var acessaToken=await HttpContext.GetTokenAsync("access_token");
-            return RedirectToAction(nameof(IndexAsync));
+            var acessaToken = await HttpContext.GetTokenAsync("access_token");
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Logout()
