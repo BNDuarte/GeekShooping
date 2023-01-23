@@ -1,6 +1,7 @@
 using AutoMapper;
 using GeekShooping.CartAPI.Config;
 using GeekShooping.CartAPI.Models.Context;
+using GeekShooping.CartAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -9,8 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
-
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -53,6 +52,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 #endregion
 
 
+builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
