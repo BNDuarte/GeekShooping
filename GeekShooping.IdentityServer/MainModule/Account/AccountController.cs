@@ -12,7 +12,6 @@ using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
-using Duende.IdentityServer.Test;
 using GeekShooping.IdentityServer.Models.Context;
 using Microsoft.AspNetCore.Identity;
 using GeekShooping.IdentityServer.MainModule.Account;
