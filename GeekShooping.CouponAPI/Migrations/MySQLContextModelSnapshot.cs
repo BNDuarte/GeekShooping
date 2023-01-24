@@ -37,7 +37,7 @@ namespace GeekShooping.CouponAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("coupon");
+                    b.ToTable("coupon", (string)null);
 
                     b.HasData(
                         new

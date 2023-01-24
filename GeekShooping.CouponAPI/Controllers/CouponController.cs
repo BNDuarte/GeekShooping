@@ -18,7 +18,7 @@ namespace GeekShooping.CouponAPI.Controllers
             _repository = repository;
         }
 
-        [HttpGet("{code}")]
+        [HttpGet("{couponCode}")]
         [Authorize]
         public async Task<ActionResult<CouponVO>> FindByCode(string couponCode)
         {

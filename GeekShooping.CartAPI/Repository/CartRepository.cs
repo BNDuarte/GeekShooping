@@ -23,7 +23,7 @@ namespace GeekShooping.CartAPI.Repository
 
             if (header != null)
             {
-                header.CuponCode = couponCode;
+                header.CouponCode = couponCode;
                 _context.CartHeaders.Update(header);
                 await _context.SaveChangesAsync();
                 return true;
@@ -143,7 +143,7 @@ namespace GeekShooping.CartAPI.Repository
 
             if (header != null)
             {
-                header.CuponCode = "";
+                header.CouponCode = "";
                 _context.CartHeaders.Update(header);
                 await _context.SaveChangesAsync();
                 return true;
