@@ -1,5 +1,6 @@
 ﻿using GeekShooping.CartAPI.Data;
 using GeekShooping.CartAPI.Repository;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GeekShooping.CartAPI.Controllers
@@ -25,7 +26,7 @@ namespace GeekShooping.CartAPI.Controllers
         }
 
         [HttpPost("add-cart")]
-        public async Task<ActionResult<CartVO>> AddCart([FromBody]CartVO vo)
+        public async Task<ActionResult<CartVO>> AddCart([FromBody] CartVO vo)
         {
             var cart = await _repository.SaveOrUpdateCart(vo);
             if (cart == null)
@@ -36,7 +37,7 @@ namespace GeekShooping.CartAPI.Controllers
         }
 
         [HttpPut("update-cart")]
-        public async Task<ActionResult<CartVO>> UpdateCart([FromBody]CartVO vo)
+        public async Task<ActionResult<CartVO>> UpdateCart([FromBody] CartVO vo)
         {
             var cart = await _repository.SaveOrUpdateCart(vo);
             if (cart == null)
@@ -54,6 +55,22 @@ namespace GeekShooping.CartAPI.Controllers
             {
                 return BadRequest();
             }
+            return Ok(status);
+        }
+
+        [HttpPost("apply-coupon")]
+        public async Task<ActionResult<CartVO>> ApplyCoupon(CartVO vo)
+        {
+            var status = await _repository.ApplyCoupon(vo.CartHeader.UserId, vo.CartHeader.CuponCode);
+            if (!status) return NotFound();
+            return Ok(status);
+        }
+
+        [HttpDelete("remove-coupon/{userId}")]
+        public async Task<ActionResult<CartVO>> ApplyCoupon(string userId)
+        {
+            var status = await _repository.RemoveCoupon(userId);
+            if (!status) return NotFound();
             return Ok(status);
         }
     }
