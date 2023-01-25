@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GeekShooping.Web.Controllers
 {
+    [Authorize]
     public class CartController : Controller
     {
         private readonly IProductService _productService;
@@ -21,7 +22,6 @@ namespace GeekShooping.Web.Controllers
             _couponService = couponService;
         }
 
-        [Authorize]
         public async Task<IActionResult> CartIndex()
         {
             return View(await FindUserCart());
@@ -74,12 +74,31 @@ namespace GeekShooping.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> Checkout()
         {
             return View(await FindUserCart());
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> Checkout(CartViewModel model)
+        {
+            var token = await HttpContext.GetTokenAsync("access_token");
+
+            var response = await _cartService.Checkout(model.CartHeader, token);
+
+            if (response != null)
+            {
+                return RedirectToAction(nameof(Confirmation));
+            }
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Confirmation()
+        {
+            return View();
+        }
 
         private async Task<CartViewModel> FindUserCart()
         {
