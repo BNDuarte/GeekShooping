@@ -13,32 +13,17 @@ namespace GeekShooping.Web.Controllers
         private readonly ICartService _cartService;
         private readonly ICouponService _couponService;
 
-        public CartController(IProductService productService,
-            ICartService cartService,
-            ICouponService couponService)
+        public CartController(IProductService productService, ICartService cartService, ICouponService couponService)
         {
             _productService = productService;
             _cartService = cartService;
             _couponService = couponService;
         }
 
+        [Authorize]
         public async Task<IActionResult> CartIndex()
         {
             return View(await FindUserCart());
-        }
-
-        public async Task<IActionResult> Remove(int id)
-        {
-            var token = await HttpContext.GetTokenAsync("access_token");
-            var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
-
-            var response = await _cartService.RemoveFromCart(id, token);
-
-            if (response)
-            {
-                return RedirectToAction(nameof(CartIndex));
-            }
-            return View();
         }
 
         [HttpPost]
@@ -73,12 +58,25 @@ namespace GeekShooping.Web.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Remove(int id)
+        {
+            var token = await HttpContext.GetTokenAsync("access_token");
+            var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
+
+            var response = await _cartService.RemoveFromCart(id, token);
+
+            if (response)
+            {
+                return RedirectToAction(nameof(CartIndex));
+            }
+            return View();
+        }
+
         [HttpGet]
         public async Task<IActionResult> Checkout()
         {
             return View(await FindUserCart());
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Checkout(CartViewModel model)
@@ -91,7 +89,7 @@ namespace GeekShooping.Web.Controllers
             {
                 return RedirectToAction(nameof(Confirmation));
             }
-            return View();
+            return View(model);
         }
 
         [HttpGet]

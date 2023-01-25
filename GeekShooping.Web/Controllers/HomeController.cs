@@ -25,7 +25,6 @@ namespace GeekShooping.Web.Controllers
         {
             var products = await _productService.FindAllProducts("");
             return View(products);
-
         }
 
         [Authorize]
