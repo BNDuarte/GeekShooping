@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GeekShooping.Web.Controllers
 {
-    [Authorize]
     public class CartController : Controller
     {
         private readonly IProductService _productService;
@@ -26,6 +25,7 @@ namespace GeekShooping.Web.Controllers
             return View(await FindUserCart());
         }
 
+        [Authorize]
         [HttpPost]
         [ActionName("ApplyCoupon")]
         public async Task<IActionResult> ApplyCoupon(CartViewModel model)
@@ -42,6 +42,7 @@ namespace GeekShooping.Web.Controllers
             return View();
         }
 
+        [Authorize]
         [HttpPost]
         [ActionName("RemoveCoupon")]
         public async Task<IActionResult> RemoveCoupon()
@@ -58,6 +59,7 @@ namespace GeekShooping.Web.Controllers
             return View();
         }
 
+        [Authorize]
         public async Task<IActionResult> Remove(int id)
         {
             var token = await HttpContext.GetTokenAsync("access_token");
@@ -72,12 +74,14 @@ namespace GeekShooping.Web.Controllers
             return View();
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Checkout()
         {
             return View(await FindUserCart());
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Checkout(CartViewModel model)
         {
@@ -89,9 +93,15 @@ namespace GeekShooping.Web.Controllers
             {
                 return RedirectToAction(nameof(Confirmation));
             }
+            else if (response != null && response.GetType() == typeof(string))
+            {
+                TempData["Error"] = response;
+                return RedirectToAction(nameof(Checkout));
+            }
             return View(model);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Confirmation()
         {

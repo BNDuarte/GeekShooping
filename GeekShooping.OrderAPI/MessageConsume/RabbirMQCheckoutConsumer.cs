@@ -1,5 +1,6 @@
 ﻿using GeekShooping.OrderAPI.Messages;
 using GeekShooping.OrderAPI.Models.Base;
+using GeekShooping.OrderAPI.RabbitMQSender;
 using GeekShooping.OrderAPI.Repository;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -13,8 +14,9 @@ namespace GeekShooping.OrderAPI.MessageConsume
         private readonly OrderRepository _repository;
         public IConnection _connection;
         private IModel _chanel;
+        private IRabbitMQMessageSender _rabbitMQMessageSender;
 
-        public RabbirMQCheckoutConsumer(OrderRepository repository)
+        public RabbirMQCheckoutConsumer(OrderRepository repository, IRabbitMQMessageSender rabbitMQSender)
         {
             _repository = repository;
 
@@ -29,6 +31,7 @@ namespace GeekShooping.OrderAPI.MessageConsume
 
             _chanel = _connection.CreateModel();
             _chanel.QueueDeclare(queue: "checkoutqueue", false, false, false, arguments: null);
+            _rabbitMQMessageSender = rabbitMQSender;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -81,6 +84,27 @@ namespace GeekShooping.OrderAPI.MessageConsume
             }
 
             await _repository.AddOrder(order);
+
+
+            PaymentVO payment = new()
+            {
+                Name = order.FirstName + " " + order.LastName,
+                CardNumber = order.CardNumber,
+                CVV = order.CVV,
+                ExpiryMonthYear = order.ExpiryMonthYear,
+                OrderId = order.Id,
+                PurchaseAmount = order.PurchaseAmount,
+                Email = order.Email
+            };
+            try
+            {
+                _rabbitMQMessageSender.SendMessage(payment, "orderpaymentprocessqueue");
+            }
+            catch (Exception)
+            {
+                //Log
+                throw;
+            }
         }
     }
 }
