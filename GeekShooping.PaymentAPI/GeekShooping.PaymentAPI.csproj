@@ -21,10 +21,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\GeekShooping.MessageBus\GeekShooping.MessageBus.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Controllers\" />
+		<ProjectReference Include="..\GeekShooping.PaymentProcessor\GeekShooping.PaymentProcessor.csproj" />
 	</ItemGroup>
 
 </Project>

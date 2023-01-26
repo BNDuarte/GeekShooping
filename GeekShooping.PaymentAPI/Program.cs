@@ -1,3 +1,5 @@
+using GeekShooping.PaymentAPI.MessageConsume;
+using GeekShooping.PaymentProcessor;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -7,8 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IProcessPayment, ProcessPayment>();
-builder.Services.AddSingleton<IRabbitMQMessageSender, RabbitMQMessageSender>();
-builder.Services.AddHostedService<RabbitMQPaymentConsumer>();
+//builder.Services.AddSingleton<IRabbitMQMessageSender, RabbitMQMessageSender>();
+builder.Services.AddHostedService<RabbirMQPaymentConsumer>();
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication("Bearer")
