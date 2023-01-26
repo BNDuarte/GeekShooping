@@ -1,4 +1,5 @@
 ﻿using GeekShooping.PaymentAPI.Messages;
+using GeekShooping.PaymentAPI.RabbitMQSender;
 using GeekShooping.PaymentProcessor;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -12,8 +13,8 @@ namespace GeekShooping.PaymentAPI.MessageConsume
         public IConnection _connection;
         private IModel _chanel;
         private readonly IProcessPayment _processPayment;
-
-        public RabbirMQPaymentConsumer(IProcessPayment processPayment)
+        private IRabbitMQMessageSender _rabbitMQMessegeSender;
+        public RabbirMQPaymentConsumer(IProcessPayment processPayment, IRabbitMQMessageSender rabbitMQMessegeSender)
         {
             _processPayment = processPayment;
             var factory = new ConnectionFactory
@@ -27,6 +28,7 @@ namespace GeekShooping.PaymentAPI.MessageConsume
 
             _chanel = _connection.CreateModel();
             _chanel.QueueDeclare(queue: "orderpaymentprocessqueue", false, false, false, arguments: null);
+            _rabbitMQMessegeSender = rabbitMQMessegeSender;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -46,9 +48,17 @@ namespace GeekShooping.PaymentAPI.MessageConsume
 
         private async Task ProcessPayment(PaymentMessage vo)
         {
+            var result = _processPayment.PaymentProcessor();
+            UpdatePaymentResultMessage paymentResultMessage = new UpdatePaymentResultMessage()
+            {
+                Status = result,
+                OrderId = vo.OrderId,
+                Email = vo.Email,
+            };
+
             try
             {
-                //_rabbitMQMessageSender.SendMessage(payment, "orderpaymentprocessqueue");
+                _rabbitMQMessegeSender.SendMessage(paymentResultMessage, "orderpaymentresultqueue");
             }
             catch (Exception)
             {
