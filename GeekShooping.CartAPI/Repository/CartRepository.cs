@@ -49,7 +49,7 @@ namespace GeekShooping.CartAPI.Repository
         {
             Cart cart = new Cart()
             {
-                CartHeader = await _context.CartHeaders.FirstOrDefaultAsync(c => c.UserId == userId),
+                CartHeader = await _context.CartHeaders.FirstOrDefaultAsync(c => c.UserId == userId) ?? new CartHeader(),
             };
 
             cart.CartDetails = _context.CartDetails.Where(c => c.CartHeaderId == cart.CartHeader.Id).Include(c => c.Product);

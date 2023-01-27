@@ -42,7 +42,7 @@ namespace GeekShooping.PaymentAPI.MessageConsume
                 ProcessPayment(vo).GetAwaiter().GetResult();
                 _chanel.BasicAck(evt.DeliveryTag, false);
             };
-            _chanel.BasicConsume("checkoutqueue", false, consume);
+            _chanel.BasicConsume("orderpaymentprocessqueue", false, consume);
             return Task.CompletedTask;
         }
 

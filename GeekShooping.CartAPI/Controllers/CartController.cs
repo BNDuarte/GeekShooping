@@ -28,7 +28,10 @@ namespace GeekShooping.CartAPI.Controllers
         public async Task<ActionResult<CartVO>> FindById(string id)
         {
             var cart = await _cartRepository.FindCartByUserId(id);
-            if (cart == null) return NotFound();
+            if (cart == null)
+            {
+                return NotFound();
+            }
             return Ok(cart);
         }
 
@@ -87,7 +90,7 @@ namespace GeekShooping.CartAPI.Controllers
         {
             //string token = await HttpContext.GetTokenAsync("acess_token");
             string token = Request.Headers["Authorization"];
-            token=token.Replace("Bearer ","").Trim();
+            token = token.Replace("Bearer ", "").Trim();
             if (vo?.UserId == null)
             {
                 return NotFound();
@@ -112,7 +115,7 @@ namespace GeekShooping.CartAPI.Controllers
             vo.CartDetails = cart.CartDetails;
 
             _rabbitMQMessageSender.SendMessage(vo, "checkoutqueue");
-
+            await _cartRepository.ClearCart(vo.UserId);
             return Ok(cart);
         }
     }
