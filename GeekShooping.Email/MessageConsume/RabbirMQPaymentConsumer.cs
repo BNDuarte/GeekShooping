@@ -1,22 +1,20 @@
-﻿using GeekShooping.OrderAPI.Messages;
-using GeekShooping.OrderAPI.RabbitMQSender;
-using GeekShooping.OrderAPI.Repository;
+﻿using GeekShooping.Email.Messages;
+using GeekShooping.Email.Repository;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 
-namespace GeekShooping.OrderAPI.MessageConsume
+namespace GeekShooping.Email.MessageConsume
 {
     public class RabbirMQPaymentConsumer : BackgroundService
     {
-        private readonly OrderRepository _repository;
+        private readonly EmailRepository _repository;
         public IConnection _connection;
         private IModel _chanel;
         private const string _exchange = "FanoutPaumentUpdateExchange";
         private  string _queueName = "";
-        public RabbirMQPaymentConsumer(OrderRepository repository, IRabbitMQMessageSender rabbitMQSender)
+        public RabbirMQPaymentConsumer(EmailRepository repository)
         {
             _repository = repository;
 
@@ -43,19 +41,19 @@ namespace GeekShooping.OrderAPI.MessageConsume
             consume.Received += (chanel, evt) =>
             {
                 var content = Encoding.UTF8.GetString(evt.Body.ToArray());
-                UpdatePaymentResultVO vo = JsonSerializer.Deserialize<UpdatePaymentResultVO>(content);
-                UpdatePaymentSatus(vo).GetAwaiter().GetResult();
+                UpdatePaymentResultMessage message = JsonSerializer.Deserialize<UpdatePaymentResultMessage>(content);
+                ProcessLogs(message).GetAwaiter().GetResult();
                 _chanel.BasicAck(evt.DeliveryTag, false);
             };
             _chanel.BasicConsume(_queueName, false, consume);
             return Task.CompletedTask;
         }
 
-        private async Task UpdatePaymentSatus(UpdatePaymentResultVO vo)
+        private async Task ProcessLogs(UpdatePaymentResultMessage message)
         {
             try
             {
-                await _repository.UpdateOrderPaymentStatus(vo.OrderId,vo.Status);
+                await _repository.LogEmail(message);
             }
             catch (Exception)
             {
